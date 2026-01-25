@@ -59,6 +59,7 @@ services:
       - 8003:8003
     environment:
       - PORT=8003
+      - CONTEXT7_API_KEY=${CONTEXT7_API_KEY}
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Moscow
