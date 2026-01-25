@@ -1,0 +1,1 @@
+FROM mekayelanik/context7-mcp:stable
