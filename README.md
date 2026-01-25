@@ -1,6 +1,4 @@
 # 🔧 MCP Server Collection
-Оригинал взят с [https://github.com/cloud-ru/mcp-servers](https://github.com/cloud-ru/mcp-servers)
-
 Коллекция простых и мощных MCP (Model Context Protocol) серверов для подключения в LM Studio и пр.
 
 ## 🎯 Доступные серверы
@@ -10,24 +8,30 @@
 | 🔍 [**Search**](./mcp-search/) | 8001 | Веб-поиск, новости, изображения | DuckDuckGo | 🆓 Бесплатно | 
 | 🔍 [**Yandex Search**](./mcp-yandex-search/) | 8001 | Поиск Yandex | Yandex API | 🔑 Требует ключи |
 | 📥 [**Fetch**](./mcp-fetch/) | 8002 | HTTP запросы и загрузка | - | 🆓 Бесплатно | 
-| 📥 [**Context7**](./mcp-context7/) | 8003 | HTTP запросы и загрузка | - | 🆓 Бесплатно |
+| 📥 [**Context7**](./mcp-context7/) | 8003 | Расширения «памяти» и контекстных возможностей | - | 🆓 Бесплатно |
 
-### Search не подключен. Используется Yandex Search
+Search не подключен (Лежит на всякий случай если понадобится). Используется Yandex Search
 
 ## ⚡ Быстрый старт
 
-### Установка и запуск серверов:
+### Подготовка:
+1. Клонируйте репозиторий
+2. Перейдите в папку репозитория
 
-```bash
-# Клонируйте репозиторий
-git clone https://github.com/your-username/mcp-servers.git
+### Настройка Yandex Search:
+1. Зарегистрируйтесь на [Yandex.Cloud](https://yandex.cloud/ru) и создайте API ключ для поиска в соответсвии с инструкцией.
+2. Клонируйте репозиторий
+2. Переименуйте файл `env` в `.env` и укажите нужные данные:
+```txt
+export YANDEX_API_KEY=
+export YANDEX_FOLDER_ID=
 ```
-
+### Запуск серверов:
 ```bash
 docker compose up --build -d
 ```
 
-### Добавить в LM Studio:
+### Добавление в LM Studio:
 ```json
 {
   "mcpServers": {
@@ -43,3 +47,7 @@ docker compose up --build -d
   }
 }
 ```
+
+## ⚡ Ссылки
+* Оригинал взят с [https://github.com/cloud-ru/mcp-servers](https://github.com/cloud-ru/mcp-servers)
+* Сontext7 MCP [https://hub.docker.com/r/mekayelanik/context7-mcp](https://hub.docker.com/r/mekayelanik/context7-mcp)
