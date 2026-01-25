@@ -294,9 +294,9 @@ async def search_web(
 # Настройка и запуск сервера
 if __name__ == "__main__":
     print("🔍 Запуск MCP сервера Yandex Search...")
-    print("📡 Сервер будет доступен по адресу: http://localhost:8006")
-    print("🔗 SSE endpoint: http://localhost:8006/sse")
-    print("📧 Messages endpoint: http://localhost:8006/messages/")
+    print("📡 Сервер будет доступен по адресу: http://localhost:8001")
+    print("🔗 SSE endpoint: http://localhost:8001/sse")
+    print("📧 Messages endpoint: http://localhost:8001/messages/")
     print("🛠️ Доступные инструменты:")
     print(
         "   - search_web(query, page_size, page_number) - поиск через Yandex"
@@ -309,9 +309,9 @@ if __name__ == "__main__":
     try:
         # Используем встроенную поддержку SSE в FastMCP 2.0
         # Порт можно указать через переменную окружения FASTMCP_SERVER_PORT
-        # или через CLI: fastmcp run server.py --transport sse --port 8006
+        # или через CLI: fastmcp run server.py --transport sse --port 8001
         mcp.settings.host = "0.0.0.0"
-        mcp.settings.port = 8006
+        mcp.settings.port = 8001
         mcp.run(transport="sse")
     except ValueError as e:
         print(f"❌ Ошибка конфигурации: {e}")
