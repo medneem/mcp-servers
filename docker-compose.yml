@@ -64,11 +64,11 @@ services:
       - PGID=1000
       - TZ=Europe/Moscow
       - NODE_ENV=production
-      - PROTOCOL=SHTTP
+      - PROTOCOL=SSE
     hostname: mcp-context7
     # domainname: local
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8003/mcp/"]
+      test: ["CMD", "curl", "-f", "http://localhost:8003/sse/"]
       interval: 30s
       timeout: 10s
       retries: 3

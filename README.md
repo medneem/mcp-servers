@@ -49,7 +49,7 @@ docker compose up --build -d
       "url": "http://localhost:8002/sse"
     },
     "context7Mcp": {
-      "url": "http://localhost:8003/mcp"
+      "url": "http://localhost:8003/sse"
     }
   }
 }
