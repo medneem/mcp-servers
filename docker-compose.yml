@@ -2,6 +2,9 @@
 # docker compose up --build -d
 # docker-compose down --remove-orphans && docker compose up --build -d
 
+# Полная пересборка с игнорированием кэша
+# docker compose down && docker compose build --no-cache && docker compose up -d --force-recreate
+
 services:
   mcp-yandex-search:
     build:
@@ -22,6 +25,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3 
+      start_period: 5s
 
   mcp-fetch:
     build: 
@@ -47,29 +51,29 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 5s
 
-  mcp-context7:
-    build: 
-      context: ./mcp-context7 
-      dockerfile: Dockerfile
-    container_name: mcp-context7
-    restart: unless-stopped
-    ports:
-      - 8003:8003
-    environment:
-      - PORT=8003
-      - CONTEXT7_API_KEY=${CONTEXT7_API_KEY}
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Moscow
-      - NODE_ENV=production
-      - PROTOCOL=SSE
-    hostname: mcp-context7
-    # domainname: local
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8003/sse/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+  # mcp-context7:
+  #   build: 
+  #     context: ./mcp-context7 
+  #     dockerfile: Dockerfile
+  #   container_name: mcp-context7
+  #   restart: unless-stopped
+  #   ports:
+  #     - 8003:8003
+  #   environment:
+  #     - PORT=8003
+  #     - CONTEXT7_API_KEY=${CONTEXT7_API_KEY}
+  #     - PUID=1000
+  #     - PGID=1000
+  #     - TZ=Europe/Moscow
+  #     - NODE_ENV=production
+  #     - PROTOCOL=SSE
+  #   hostname: mcp-context7
+  #   # domainname: local
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:8003/sse/"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 5s

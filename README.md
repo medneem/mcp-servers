@@ -8,7 +8,6 @@
 | 🔍 [**Search**](./mcp-search/) | 8001 | Веб-поиск, новости, изображения | DuckDuckGo | 🆓 Бесплатно | 
 | 🔍 [**Yandex Search**](./mcp-yandex-search/) | 8001 | Поиск Yandex | Yandex API | 🔑 Требует ключи |
 | 📥 [**Fetch**](./mcp-fetch/) | 8002 | HTTP запросы и загрузка | API | 🆓 Бесплатно | 
-| 📥 [**Context7**](./mcp-context7/) | 8003 | Расширения «памяти» и контекстных возможностей | - | 🆓 Бесплатно |
 
 Search не подключен (Лежит на всякий случай если понадобится). Используется Yandex Search
 
@@ -26,13 +25,6 @@ export YANDEX_API_KEY=
 export YANDEX_FOLDER_ID=
 ```
 
-### Настройка Context7:
-1. Зарегистрируйтесь на [Context7](https://context7.com) и создайте API ключ.
-2. Переименуйте файл `env` (если еще не сделали это) в `.env` и укажите нужные данные (значение должно быть в кавычках):
-```txt
-export CONTEXT7_API_KEY=
-```
-
 ### Запуск серверов:
 ```bash
 docker compose up --build -d
@@ -47,9 +39,6 @@ docker compose up --build -d
     },
     "fetchMcp": {
       "url": "http://localhost:8002/sse"
-    },
-    "context7Mcp": {
-      "url": "http://localhost:8003/sse"
     }
   }
 }
