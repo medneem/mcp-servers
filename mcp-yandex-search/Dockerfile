@@ -23,7 +23,7 @@ RUN useradd -m -u 1000 mcpuser && chown -R mcpuser:mcpuser /app
 USER mcpuser
 
 # Открытие порта
-EXPOSE 8006
+EXPOSE 8001
 
 # Команда запуска
 CMD ["python", "server.py", "--host", "0.0.0.0"] 

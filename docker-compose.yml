@@ -28,7 +28,7 @@ services:
       start_period: 5s
 
   mcp-fetch:
-    build: 
+    build:
       context: ./mcp-fetch
       dockerfile: Dockerfile
     container_name: mcp-fetch
@@ -47,33 +47,84 @@ services:
       # Монтируем pyproject.toml для отслеживания изменений зависимостей
       - ./mcp-fetch/pyproject.toml:/app/pyproject.toml:ro
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8002/sse/"]
+      test: ["CMD", "curl", "-f", "http://localhost:8002/sse"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 5s
 
-  # mcp-context7:
-  #   build: 
-  #     context: ./mcp-context7 
-  #     dockerfile: Dockerfile
-  #   container_name: mcp-context7
-  #   restart: unless-stopped
-  #   ports:
-  #     - 8003:8003
-  #   environment:
-  #     - PORT=8003
-  #     - CONTEXT7_API_KEY=${CONTEXT7_API_KEY}
-  #     - PUID=1000
-  #     - PGID=1000
-  #     - TZ=Europe/Moscow
-  #     - NODE_ENV=production
-  #     - PROTOCOL=SSE
-  #   hostname: mcp-context7
-  #   # domainname: local
-  #   healthcheck:
-  #     test: ["CMD", "curl", "-f", "http://localhost:8003/sse/"]
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 3
-  #     start_period: 5s
+  mcp-context7:
+    build:
+      context: ./mcp-context7
+      dockerfile: Dockerfile
+    container_name: mcp-context7
+    restart: unless-stopped
+    ports:
+     - 8003:8003
+    environment:
+      - PORT=8003
+      - CONTEXT7_API_KEY=${CONTEXT7_API_KEY}
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Moscow
+      - NODE_ENV=production
+      - PROTOCOL=SSE
+    hostname: mcp-context7
+   # domainname: local
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "http://localhost:8003/sse"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+      
+  mcp-date-time:
+    build:
+      context: ./mcp-date-time
+      dockerfile: Dockerfile
+    container_name: mcp-date-time
+    ports:
+      - 8004:8004
+    environment:
+      - PYTHONPATH=/app
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+      - UV_SYSTEM_PYTHON=1
+      - TZ=Europe/Moscow
+    restart: unless-stopped
+    volumes:
+      # Для разработки: синхронизация изменений кода
+      - ./mcp-date-time/server.py:/app/server.py:ro
+      # Монтируем pyproject.toml для отслеживания изменений зависимостей
+      - ./mcp-date-time/pyproject.toml:/app/pyproject.toml:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8004/sse"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  mcp-calc:
+    build:
+      context: ./mcp-calc
+      dockerfile: Dockerfile
+    container_name: mcp-calc
+    ports:
+      - 8005:8005
+    environment:
+      - PYTHONPATH=/app
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+      - UV_SYSTEM_PYTHON=1
+    restart: unless-stopped
+    volumes:
+      # Для разработки: синхронизация изменений кода
+      - ./mcp-calc/server.py:/app/server.py:ro
+      # Монтируем pyproject.toml для отслеживания изменений зависимостей
+      - ./mcp-calc/pyproject.toml:/app/pyproject.toml:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8005/sse"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s

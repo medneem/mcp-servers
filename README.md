@@ -5,11 +5,11 @@
 
 | Сервер | Порт | Описание | API | Статус |
 |--------|------|----------|-----|--------|
-| 🔍 [**Search**](./mcp-search/) | 8001 | Веб-поиск, новости, изображения | DuckDuckGo | 🆓 Бесплатно | 
 | 🔍 [**Yandex Search**](./mcp-yandex-search/) | 8001 | Поиск Yandex | Yandex API | 🔑 Требует ключи |
-| 📥 [**Fetch**](./mcp-fetch/) | 8002 | HTTP запросы и загрузка | API | 🆓 Бесплатно | 
-
-Search не подключен (Лежит на всякий случай если понадобится). Используется Yandex Search
+| 📥 [**Fetch**](./mcp-fetch/) | 8002 | HTTP запросы и загрузка | API | 🆓 Бесплатно |
+| 🧠 [**Context7**](./mcp-context7/) | 8003 | Контекстный поиск и управление контекстом | Context7 API | 🔑 Требует ключи |
+| 🕐 [**Date-Time**](./mcp-date-time/) | 8004 | Дата и время, временные зоны | Нет | 🆓 Бесплатно |
+| 🧮 [**Calculator**](./mcp-calc/) | 8005 | Математические вычисления, статистика, матричные операции | Нет | 🆓 Бесплатно |
 
 ## ⚡ Быстрый старт
 
@@ -17,12 +17,20 @@ Search не подключен (Лежит на всякий случай есл
 1. Клонируйте репозиторий
 2. Перейдите в папку репозитория
 
-### Настройка Yandex Search:
+### Настройка переменных окружения:
+
+#### Yandex Search
 1. Зарегистрируйтесь на [Yandex.Cloud](https://yandex.cloud/ru) и создайте API ключ для поиска в соответсвии с инструкцией.
-2. Переименуйте файл `env` в `.env` и укажите нужные данные (значения должны быть в кавычках):
+2. Получите Folder ID в консоли Yandex Cloud.
+
+#### Context7
+1. Получите API ключ на [Context7](https://context7.com/) (или другом источнике).
+
+После получения ключей переименуйте файл `env` в `.env` и укажите нужные данные (значения должны быть в кавычках):
 ```txt
-export YANDEX_API_KEY=
-export YANDEX_FOLDER_ID=
+export YANDEX_API_KEY="ваш_ключ"
+export YANDEX_FOLDER_ID="ваш_folder_id"
+export CONTEXT7_API_KEY="ваш_context7_api_key"
 ```
 
 ### Запуск серверов:
@@ -39,6 +47,15 @@ docker compose up --build -d
     },
     "fetchMcp": {
       "url": "http://localhost:8002/sse"
+    },
+    "context7Mcp": {
+      "url": "http://localhost:8003/sse"
+    },
+    "dateTimeMcp": {
+      "url": "http://localhost:8004/sse"
+    },
+    "calcMcp": {
+      "url": "http://localhost:8005/sse"
     }
   }
 }
