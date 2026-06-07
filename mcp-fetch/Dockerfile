@@ -4,18 +4,16 @@ FROM python:3.13-slim
 # Устанавливаем рабочую директорию
 WORKDIR /app
 
-# Устанавливаем системные зависимости и uv в одном слое для оптимизации
+# Устанавливаем системные зависимости
 RUN apt-get update && apt-get install -y \
     curl \
-    && rm -rf /var/lib/apt/lists/* \
-    && pip install --no-cache-dir uv
+    && rm -rf /var/lib/apt/lists/*
 
 # Копируем файлы конфигурации uv сначала для лучшего кеширования Docker слоев
 COPY pyproject.toml ./
 
-# Создаем виртуальное окружение и устанавливаем зависимости
-# Используем тот же подход, что и локально
-RUN uv sync --no-editable
+# Устанавливаем зависимости так же, как в рабочем mcp-yandex-search
+RUN pip install --no-cache-dir -e .
 
 # Копируем исходный код приложения
 COPY server.py README.md ./
@@ -35,12 +33,10 @@ EXPOSE 8002
 ENV PYTHONPATH=/app \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PYTHONHASHSEED=random \
-    UV_SYSTEM_PYTHON=1
+    PYTHONHASHSEED=random
 
 # Health check для мониторинга состояния сервера
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8002/sse/ || exit 1
+    CMD python -c "from urllib.request import urlopen; urlopen('http://localhost:8002/sse', timeout=5).close()" || exit 1
 
-# Команда запуска сервера - точно так же, как локально
-CMD ["uv", "run", "python", "server.py"] 
+CMD ["python", "server.py"] 

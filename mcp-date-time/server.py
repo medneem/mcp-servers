@@ -1,17 +1,13 @@
 import datetime
+import os
 import pytz
 from typing import Optional
 
 import tzlocal
-import uvicorn
-from starlette.applications import Starlette
-from starlette.requests import Request
-from starlette.routing import Route, Mount
 
 from mcp.server.fastmcp import FastMCP
 from mcp.shared.exceptions import McpError
 from mcp.types import ErrorData, INVALID_PARAMS
-from mcp.server.sse import SseServerTransport
 
 # Создаем экземпляр MCP сервера с идентификатором "datetime"
 mcp = FastMCP("datetime")
@@ -121,7 +117,7 @@ async def get_current_date(
     
     Args:
         timezone: Название временной зоны (по умолчанию локальная зона хоста)
-        format: Формат вывода: 'iso' (YYYY-MM-DD), 'human' (DD.MM.YYYY), 'rfc' (RFC 3339)
+        format: Формат вывода: 'iso' (YYYY-MM-DD), 'human' (DD.MM.YYYY), 'rfc' (RFC 3339 datetime at start of day)
     
     Returns:
         Строка с текущей датой в указанном формате
@@ -136,7 +132,8 @@ async def get_current_date(
         elif format == "human":
             return date.strftime("%d.%m.%Y")
         elif format == "rfc":
-            return date.strftime("%Y-%m-%d")
+            start_of_day = datetime.datetime.combine(date, datetime.time.min, tzinfo=tz)
+            return start_of_day.isoformat()
         else:
             raise McpError(
                 ErrorData(
@@ -267,43 +264,15 @@ async def convert_datetime(
         )
 
 
-# Настройка SSE транспорта
-sse = SseServerTransport("/messages/")
-
-
-async def handle_sse(request: Request):
-    """Обработчик SSE соединений"""
-    _server = mcp._mcp_server
-    async with sse.connect_sse(
-        request.scope,
-        request.receive,
-        request._send,
-    ) as (reader, writer):
-        await _server.run(
-            reader, 
-            writer, 
-            _server.create_initialization_options()
-        )
-
-
-# Создаем Starlette приложение
-app = Starlette(
-    debug=True,
-    routes=[
-        Route("/sse", endpoint=handle_sse),
-        Mount("/messages/", app=sse.handle_post_message),
-    ],
-)
-
-
 if __name__ == "__main__":
     print("🕐 Запуск MCP Date-Time сервера...")
     print("📡 SSE endpoint: http://localhost:8004/sse")
     print("🔧 Tools: get_current_datetime, get_current_date, get_current_time, list_timezones, convert_datetime")
-    
-    uvicorn.run(
-        app,
-        host="0.0.0.0",
-        port=8004,
-        log_level="info"
-    )
+
+    try:
+        mcp.settings.host = "0.0.0.0"
+        mcp.settings.port = int(os.getenv("FASTMCP_SERVER_PORT", "8004"))
+        mcp.run(transport="sse")
+    except ValueError as e:
+        print(f"❌ Ошибка конфигурации: {e}")
+        exit(1)

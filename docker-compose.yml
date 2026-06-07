@@ -5,6 +5,9 @@
 # Полная пересборка с игнорированием кэша
 # docker compose down && docker compose build --no-cache && docker compose up -d --force-recreate
 
+# docker compose up -d --build --remove-orphans
+
+
 services:
   mcp-yandex-search:
     build:
@@ -21,7 +24,7 @@ services:
       - ./mcp-yandex-search/logs:/app/logs
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8001/sse"]
+      test: ["CMD", "python", "-c", "from urllib.request import urlopen; urlopen('http://localhost:8001/sse', timeout=5).close()"]
       interval: 30s
       timeout: 10s
       retries: 3 
@@ -38,7 +41,7 @@ services:
       - PYTHONPATH=/app
       - PYTHONDONTWRITEBYTECODE=1
       - PYTHONUNBUFFERED=1
-      - UV_SYSTEM_PYTHON=1
+      - FASTMCP_SERVER_PORT=8002
     restart: unless-stopped
     volumes:
       # Для разработки: синхронизация изменений кода
@@ -47,7 +50,7 @@ services:
       # Монтируем pyproject.toml для отслеживания изменений зависимостей
       - ./mcp-fetch/pyproject.toml:/app/pyproject.toml:ro
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8002/sse"]
+      test: ["CMD", "python", "-c", "from urllib.request import urlopen; urlopen('http://localhost:8002/sse', timeout=5).close()"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -89,7 +92,7 @@ services:
       - PYTHONPATH=/app
       - PYTHONDONTWRITEBYTECODE=1
       - PYTHONUNBUFFERED=1
-      - UV_SYSTEM_PYTHON=1
+      - FASTMCP_SERVER_PORT=8004
       - TZ=Europe/Moscow
     restart: unless-stopped
     volumes:
@@ -98,7 +101,7 @@ services:
       # Монтируем pyproject.toml для отслеживания изменений зависимостей
       - ./mcp-date-time/pyproject.toml:/app/pyproject.toml:ro
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8004/sse"]
+      test: ["CMD", "python", "-c", "from urllib.request import urlopen; urlopen('http://localhost:8004/sse', timeout=5).close()"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -115,7 +118,7 @@ services:
       - PYTHONPATH=/app
       - PYTHONDONTWRITEBYTECODE=1
       - PYTHONUNBUFFERED=1
-      - UV_SYSTEM_PYTHON=1
+      - FASTMCP_SERVER_PORT=8005
     restart: unless-stopped
     volumes:
       # Для разработки: синхронизация изменений кода
@@ -123,7 +126,7 @@ services:
       # Монтируем pyproject.toml для отслеживания изменений зависимостей
       - ./mcp-calc/pyproject.toml:/app/pyproject.toml:ro
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8005/sse"]
+      test: ["CMD", "python", "-c", "from urllib.request import urlopen; urlopen('http://localhost:8005/sse', timeout=5).close()"]
       interval: 30s
       timeout: 10s
       retries: 3

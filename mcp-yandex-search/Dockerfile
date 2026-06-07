@@ -1,13 +1,5 @@
 FROM python:3.13-slim
 
-# Установка системных зависимостей
-RUN apt-get update && apt-get install -y \
-    gcc \
-    ca-certificates \
-    curl \
-    && rm -rf /var/lib/apt/lists/* \
-    && update-ca-certificates
-
 # Создание рабочей директории
 WORKDIR /app
 
@@ -16,7 +8,7 @@ COPY pyproject.toml .
 COPY server.py .
 
 # Установка Python зависимостей
-RUN pip install -e .
+RUN pip install --no-cache-dir -e .
 
 # Создание пользователя для запуска приложения
 RUN useradd -m -u 1000 mcpuser && chown -R mcpuser:mcpuser /app

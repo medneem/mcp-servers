@@ -1,17 +1,12 @@
 import re
+import os
 from urllib.parse import urlparse
 import httpx
 from bs4 import BeautifulSoup
 
-import uvicorn
-from starlette.applications import Starlette
-from starlette.requests import Request
-from starlette.routing import Route, Mount
-
 from mcp.server.fastmcp import FastMCP
 from mcp.shared.exceptions import McpError
 from mcp.types import ErrorData, INTERNAL_ERROR, INVALID_PARAMS
-from mcp.server.sse import SseServerTransport
 
 # Создаем экземпляр MCP сервера с идентификатором "fetch"
 mcp = FastMCP("fetch")
@@ -104,7 +99,7 @@ async def fetch_page_content(url: str, timeout: int = 30) -> str:
         parsed_url = urlparse(url)
         if not parsed_url.scheme or not parsed_url.netloc:
             raise McpError(
-                ErrorData(
+                error=ErrorData(
                     code=INVALID_PARAMS,
                     message=f"Некорректный URL: {url}"
                 )
@@ -171,21 +166,21 @@ async def fetch_page_content(url: str, timeout: int = 30) -> str:
             
     except httpx.TimeoutException:
         raise McpError(
-            ErrorData(
+            error=ErrorData(
                 code=INTERNAL_ERROR,
                 message=f"Превышен таймаут запроса для URL: {url}"
             )
         )
     except httpx.HTTPStatusError as e:
         raise McpError(
-            ErrorData(
+            error=ErrorData(
                 code=INTERNAL_ERROR,
                 message=f"HTTP ошибка {e.response.status_code} для URL: {url}"
             )
         )
     except Exception as e:
         raise McpError(
-            ErrorData(
+            error=ErrorData(
                 code=INTERNAL_ERROR,
                 message=f"Ошибка при получении страницы {url}: {str(e)}"
             )
@@ -206,10 +201,20 @@ async def fetch_page(url: str, timeout: int = 30) -> str:
     """
     
     if not url:
-        return "Ошибка: URL не может быть пустым"
+        raise McpError(
+            error=ErrorData(
+                code=INVALID_PARAMS, 
+                message="URL не может быть пустым"
+            )
+        )
     
     if timeout <= 0 or timeout > 120:
-        return "Ошибка: Таймаут должен быть от 1 до 120 секунд"
+        raise McpError(
+            error=ErrorData(
+                code=INVALID_PARAMS, 
+                message="Таймаут должен быть от 1 до 120 секунд"
+            )
+        )
     
     try:
         content = await fetch_page_content(url, timeout)
@@ -220,42 +225,16 @@ async def fetch_page(url: str, timeout: int = 30) -> str:
         return f"Неожиданная ошибка при получении страницы: {str(e)}"
 
 
-# Настройка SSE транспорта
-sse = SseServerTransport("/messages/")
-
-
-async def handle_sse(request: Request):
-    """Обработчик SSE соединений"""
-    _server = mcp._mcp_server
-    async with sse.connect_sse(
-        request.scope,
-        request.receive,
-        request._send,
-    ) as (reader, writer):
-        await _server.run(
-            reader, 
-            writer, 
-            _server.create_initialization_options()
-        )
-
-
-# Создаем Starlette приложение
-app = Starlette(
-    debug=True,
-    routes=[
-        Route("/sse", endpoint=handle_sse),
-        Mount("/messages/", app=sse.handle_post_message),
-    ],
-)
-
+# Настройка и запуск сервера
 if __name__ == "__main__":
     print("🌐 Запуск MCP Fetch сервера...")
-    print("📡 SSE endpoint: http://localhost:8002/sse")
+    print("📡 Сервер будет доступен по адресу: http://localhost:8002")
     print("🔧 Tools: fetch_page")
     
-    uvicorn.run(
-        app,
-        host="0.0.0.0",
-        port=8002,
-        log_level="info"
-    ) 
+    try:
+        mcp.settings.host = "0.0.0.0"
+        mcp.settings.port = int(os.getenv("FASTMCP_SERVER_PORT", "8002"))
+        mcp.run(transport="sse")
+    except ValueError as e:
+        print(f"❌ Ошибка конфигурации: {e}")
+        exit(1) 
